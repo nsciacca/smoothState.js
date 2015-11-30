@@ -37,8 +37,8 @@
       /** jQuery selector to specify which anchors smoothState should bind to */
       anchors: 'a',
 
-  	  /** Regex to specify which href smoothState should load. If empty, every href will be permitted. */
-  	  hrefRegex: '',
+      /** Regex to specify which href smoothState should load. If empty, every href will be permitted. */
+      hrefRegex: '',
 
       /** jQuery selector to specify which forms smoothState should bind to */
       forms: 'form',
@@ -458,9 +458,12 @@
          *                      we should allow the cache to forget this
          *                      page after thid load completes.
          */
-        load = function (request, push, cacheResponse) {
+        load = function (request, push, cacheResponse, $anchor) {
 
           var settings = utility.translate(request);
+
+          // Added onBefore call so it always runs when a load is requested.
+          options.onBefore($anchor, $container);
 
           /** Makes these optional variables by setting defaults. */
           if (typeof push === 'undefined') {
@@ -608,9 +611,8 @@
               // Allows modifications to the request
               request = options.alterRequest(request);
 
-              options.onBefore($anchor, $container);
-
-              load(request);
+              // Removed onBefore call and passing the anchor along to the load.
+              load(request, undefined, undefined, $anchor);
             }
           }
         },
@@ -646,10 +648,8 @@
                 request.url = request.url + '?' + request.data;
               }
 
-              // Call the onReady callback and set delay
-              options.onBefore($form, $container);
-
-              load(request, undefined, options.allowFormCaching);
+              // Removed onBefore and passing form on to the load.
+              load(request, undefined, options.allowFormCaching, $form);
             }
           }
         },
